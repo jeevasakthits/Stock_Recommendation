@@ -1,3 +1,3 @@
 # Stock_Recommendation
 Predicting and Recommending stock
-<img src="">
+<img src="static/output.png">
