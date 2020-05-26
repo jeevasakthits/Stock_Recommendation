@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <link rel = "shortcut icon" href =  "{{ url_for( 'static', filename='iocn.png' ) }}" > 
+        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js"></script>
+  <title>Prediction of Stock based on Past Data</title>
+  <style>
+/*the container must be positioned relative:*/
+.custom-select {
+  position: relative;
+  font-family: Arial;
+}
+
+.custom-select select {
+  display: none; /*hide original SELECT element:*/
+}
+
+.select-selected {
+  background-color: DodgerBlue;
+}
+
+/*style the arrow inside the select element:*/
+.select-selected:after {
+  position: absolute;
+  content: "";
+  top: 14px;
+  right: 10px;
+  width: 0;
+  height: 0;
+  border: 6px solid transparent;
+  border-color: #fff transparent transparent transparent;
+}
+
+/*point the arrow upwards when the select box is open (active):*/
+.select-selected.select-arrow-active:after {
+  border-color: transparent transparent #fff transparent;
+  top: 7px;
+}
+
+/*style the items (options), including the selected item:*/
+.select-items div,.select-selected {
+  color: #ffffff;
+  padding: 8px 16px;
+  border: 1px solid transparent;
+  border-color: transparent transparent rgba(0, 0, 0, 0.1) transparent;
+  cursor: pointer;
+  user-select: none;
+}
+
+/*style items (options):*/
+.select-items {
+  position: absolute;
+  background-color: DodgerBlue;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 99;
+}
+
+/*hide the items when the select box is closed:*/
+.select-hide {
+  display: none;
+}
+
+.select-items div:hover, .same-as-selected {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+</style>
+  <!-- CSS  -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="static/css/materialize.css" type="text/css" rel="stylesheet" media="screen,projection"/>
+  <link href="static/css/style.css" type="text/css" rel="stylesheet" media="screen,projection"/>
+   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
+</head>
+</head>
+<body><div class="navbar-fixed">
+   <nav class="purple darken-4" role="navigation">
+    <div class="nav-wrapper container">
+      <a id="logo-container" href="#" class="brand-logo"><h5>Stock Recommendatoin</h5></a>
+      <ul class="right hide-on-med-and-down">
+        <li><a href="{{url_for('index')}}">Home</a></li>
+         <li><a href="#aboutapp">About</a></li>
+      </ul>
+
+      
+      <a href="#" data-target="nav-mobile" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+    </div>
+  </nav>
+</div>
+	<ul id="nav-mobile" class="sidenav">
+        <li><a href="{{url_for('index')}}">Home</a></li>
+         <li><a href="#contactme">About</a></li>
+      </ul>
+<!--Slider -->
+ <section class="slider">
+  <div id="index-banner" class="parallax-container">
+     <ul class="slides">
+      <li>
+        <img src="backgroundblue.png" alt="Unsplashed background img 1" alt="">
+        <div class="caption center-align">
+          <h2>Stock Recommendation</h2>
+          <h5 class="light grey-text text-lighten-3 hide-on-small-only">
+           Using Machine Learning
+          </h5>
+         
+           <div class="row center">
+          <a href="{{url_for('index')}}" id="download-button" class="btn-large waves-effect waves-light blue lighten-1">Refresh</a>
+        </div>
+        </div>
+      </li>
+      <li>
+       <img src="backgroundpurple.png" alt="Unsplashed background img 1">
+        <div class="caption left-align">
+          <h2>Stock Recommendation</h2>
+          <h5 class="light grey-text text-lighten-3 hide-on-small-only">
+           Predicting Next Day Price of the stock
+          </h5>
+          <a href="#aboutapp" class="btn btn-large waves-effect waves-light light-blue lighten-1">Learn More</a>
+        </div>
+      </li>
+   
+    </ul>
+  </div>
+</section>
+
+<!-- Start of Main Section -->
+ <div class="container">
+    <div class="section">
+       
+      <!--   Icon Section   -->
+      <div class="row">
+        <div class="input-field col s12 m10">
+          <div class="icon-block">
+            <h1>TYPE THE STOCK SHORT NAME YOU WANT TO PREDICT LIKE MSFT</h1>
+
+            <form method="POST" action="/predict">
+         <input name="rawtext" cols="3" rows="5" class="form-control" required="true" placeholder="Enter Stock ID"></input>
+          
+         <br/>
+         <button class="btn btn-small waves-effect waves-light light-blue lighten-1" type="reset">Clear</button>
+          <button class="btn btn-small waves-effect waves-light purple lighten-1" type="submit">Predict</button>
+          
+        </form>
+
+        </form>
+          </div>
+        </div>
+
+      </div>
+
+      <br/>
+
+    </div>
+  </div>
+  <table style="width:100%">
+      <caption>Last Date Stock Data</caption>
+      <tr>
+        <th>No of Traders </th>
+        <th>Open </th>
+        <th>High</th>
+        <th>Low</th>
+      </tr>
+      <tr>
+        <td>{{ nt1 }}</td>
+        <td>{{ op1 }}</td>
+        <td>{{ hp1 }}</td>
+        <td>{{ lp1 }}</td>
+      </tr>
+    </table>
+  <table style="width:100%">
+      <caption>Stock Prediction</caption>
+      <tr>
+        <th>No of Traders </th>
+        <th>Open </th>
+        <th>High</th>
+        <th>Low</th>
+      </tr>
+      <tr>
+        <td>{{ nt2 }}</td>
+        <td>{{ op2 }}</td>
+        <td>{{ hp2 }}</td>
+        <td>{{ lp2 }}</td>
+      </tr>
+    </table>
+    <p>Our Recommendation is to : : <i>{{ Message }}</i></p>
+<p>Bollinger Bands and Moving Average </p>
+<div class="chart" id="bargraph8">
+    <script>
+        var graphs8 = {{plot8 | safe}};
+        Plotly.plot('bargraph8',graphs8,{});
+    </script>
+</div>
+    <p>Candle Stick Plot for Stock </p>
+<div class="chart" id="bargraph5">
+    <script>
+        var graphs5 = {{plot5 | safe}};
+        Plotly.plot('bargraph5',graphs5,{});
+    </script>
+    <div class="chart" id="bargraph5">
+    <script>
+        var graphs5 = {{plot7 | safe}};
+        Plotly.plot('bargraph5',graphs5,{});
+    </script>
+</div>
+<p>All Combined </p>
+<div class="chart" id="bargraph4">
+    <script>
+        var graphs4 = {{plot4 | safe}};
+        Plotly.plot('bargraph4',graphs4,{});
+    </script>
+</div>
+
+    <p>No of Traders </p>
+    <div class="chart" id="bargraph">
+    <script>
+        var graphs = {{plot | safe}};
+        Plotly.plot('bargraph',graphs,{});
+    </script>
+</div>
+<p>Open Price </p>
+<div class="chart" id="bargraph1">
+    <script>
+        var graphs1 = {{plot1 | safe}};
+        Plotly.plot('bargraph1',graphs1,{});
+    </script>
+</div>
+<p>High Price </p>
+<div class="chart" id="bargraph2">
+    <script>
+        var graphs2 = {{plot2 | safe}};
+        Plotly.plot('bargraph2',graphs2,{});
+    </script>
+</div>
+<p>Low Price </p>
+<div class="chart" id="bargraph3">
+    <script>
+        var graphs3 = {{plot3 | safe}};
+        Plotly.plot('bargraph3',graphs3,{});
+    </script>
+</div>
+
+
+
+
+
+  <!-- End -->
+
+  <!-- Result Display-->
+ <!-- SECTION: SOLUTIONS ABOUT -->
+  <section class="section section-solutions-about grey darken-2 ">
+    <div class="container">
+      <div class="row">
+        <div class="col s12 m12">
+          <div class="row">
+            <div class="col s12">
+              <ul class="tabs grey darken-2">
+                <li class="tab col s3">
+                  <a href="#tab1" class="blue-text">Result</a>
+                </li>
+                <li class="tab col s3">
+                  <a href="#tab2" class="blue-text">Stock</a>
+              
+                </li>
+         
+              </ul>
+            </div>
+        
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+    
+  <footer class="page-footer purple darken-4">
+    <div class="container" id="aboutapp">
+      <div class="row">
+        <div class="col l6 s12">
+          <h5 class="white-text">About Stock Prediction of Selected Stock</h5>
+          <p class="grey-text text-lighten-4">Using Machine Learning to Recommend Stock
+
+
+        </div>
+      </div>
+    </div>
+    <div class="footer-copyright">
+      <div class="container">
+      Made by <a class="white-text text-lighten-3" href="#">Jeeva T, Pavithira S,Siva Kumar P, Punitha B</a><br/>
+      <a class="white-text text-lighten-3" href="#">Jeeva, Pavithira, Siva Kumar, Punitha</a>
+      </div>
+    </div>
+  </footer>
+
+
+  <!--  Scripts-->
+  <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+  <script src="static/js/materialize.js"></script>
+  <script src="static/js/init.js"></script>
+<!-- Jesse JCharis -->
+  </body>
+</html>
